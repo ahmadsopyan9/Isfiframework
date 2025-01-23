@@ -1,4 +1,4 @@
 vendor
 app_config_dev.php
-storages/cache/*
-storages/logs/*
+/storages/cache/*
+/storages/logs/*
