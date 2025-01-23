@@ -3,26 +3,26 @@ ISFIFramework is a lightweight and modern PHP MVC (Model-View-Controller) framew
 
 `Start building your next project with ISFIFramework and experience the simplicity of modern PHP development.`
 
-# MVC Architecture
+## MVC Architecture
 ISFIFramework adopts the Model-View-Controller design pattern, separating application logic, data handling, and user interface components to ensure clean and modular code.
 
-# Routing System
+## Routing System
 The framework includes a robust and flexible routing system, allowing developers to define clean and SEO-friendly URLs. Routes can handle dynamic parameters for advanced functionality.
 
-# Database Integration
+## Database Integration
 Seamlessly connect to databases with built-in support for query builders, prepared statements, and ORM-like functionality to simplify data handling.
 
-# Error Handling
+## Error Handling
 ISFIFramework provides comprehensive error and exception handling, ensuring clarity during development and graceful error pages in production.
 
-# Extensibility
+## Extensibility
 With its modular structure, developers can easily extend functionality by adding custom libraries, helpers, and plugins.
 
-# Security Features
+## Security Features
 Incorporates best practices for security, including CSRF protection, input validation, and escaping to defend against common vulnerabilities.
 
 
-## Getting Started
+# Getting Started
 
 - Download or clone the ISFIFramework repository.
 - Set up your database credentials in the configuration file.
