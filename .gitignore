@@ -1,0 +1,4 @@
+vendor
+app_config_dev.php
+storages/cache/*
+storages/logs/*
