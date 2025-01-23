@@ -25,6 +25,9 @@ Incorporates best practices for security, including CSRF protection, input valid
 # Getting Started
 
 - Download or clone the ISFIFramework repository.
+  ``` 
+  git clone https://github.com/ahmadsopyan9/Isfiframework.git
+  ```
 - Set up your database credentials in the configuration file.
 - Define routes, create controllers, and start building your application.
 
