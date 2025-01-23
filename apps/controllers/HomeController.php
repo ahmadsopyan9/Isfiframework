@@ -15,7 +15,7 @@ class HomeController extends Controller {
         // $d = $this->UserModel->getActiveUsers();
         // predump($d);
         
-        $this->view->render('frontend/indexs', $data);
+        $this->view->render('frontend/index', $data);
     }
 
 
