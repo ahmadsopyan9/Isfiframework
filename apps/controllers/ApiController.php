@@ -8,19 +8,21 @@ class ApiController extends Controller {
     }
 
     public function index() {
-        $this->response->json([
-            "success" => true,
-            "data" => 1,
-            "message" => "OKE"
-        ])->send();
+        
     }
 
-    public function test_get_data() {
-        $this->response->json([
-            "success" => true,
-            "data" => ["name" => "Testing", "email" => "testing@gmail.com"],
-            "message" => "OKE"
-        ])->send();
+    public function ref_token()
+    {
+        if($this->request->isMethod("post"))
+        {
+            unset($_SESSION['app_token']);
+            $ss = $this->session->regenerateCsrfToken();
+            return $this->response->json([
+                "success" => true,
+                "data" => $ss,
+                "message" => "success"
+            ])->send();
+        }
     }
 
 }

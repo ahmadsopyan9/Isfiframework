@@ -61,13 +61,17 @@ class Database {
         return $this->stmt->execute();
     }
 
-    public function resultSet() {
+    public function resultSet($type=PDO::FETCH_ASSOC) {
         $this->execute();
-        return $this->stmt->fetchAll();
+        return $this->stmt->fetchAll($type);
     }
 
-    public function single() {
+    public function single($type=PDO::FETCH_ASSOC) {
         $this->execute();
-        return $this->stmt->fetch();
+        return $this->stmt->fetch($type);
+    }
+
+    public function lastInsertId() {
+        return $this->dbh->lastInsertId();
     }
 } 

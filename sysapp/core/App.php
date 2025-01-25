@@ -1,6 +1,7 @@
 <?php defined('_ROOT_') OR exit('No direct script access allowed');
 
 class App {
+    private static $instance;
     private $controller = DEFAULT_CONTROLLER;
     private $method = DEFAULT_METHOD;
     private $params = [];
@@ -93,6 +94,13 @@ class App {
         // Set Parameters
         $this->params = $url ? array_values($url) : [];
     }
+    
+    public static function &get_instance() {
+        if(!self::$instance) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
 
     protected function builControllerName($str)
     {
@@ -179,4 +187,8 @@ class App {
         }
         return [];
     }
+}
+
+function &get_instance() {
+    return App::get_instance();
 }

@@ -20,7 +20,14 @@ define('HELPER_PATH', APP_PATH . 'helpers/');
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
 define('DB_PASS', '');
-define('DB_NAME', 'company_profile');
+define('DB_NAME', 'isfiframework');
+
+
+// Email Configuration
+define('EMAIL_HOST', '');
+define('EMAIL_USER', '');
+define('EMAIL_PASS', '');
+define('EMAIL_PORT', 587);
 
 
 // Base URL Configuration - Auto detect base URL

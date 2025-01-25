@@ -14,7 +14,9 @@ class Controller {
         $this->view = new View();
         $this->request = new Request();
         $this->response = new Response();
+        $this->FormValidation = new FormValidation();
         $this->Logs = new Logs();
+        $this->session = new SessionManager();
     }
 
     public function loadModel($modelName) {
@@ -46,3 +48,9 @@ class Controller {
         return self::$instance;
     }
 } 
+
+
+function &_instance()
+{
+    return Controller::get_instance();
+}

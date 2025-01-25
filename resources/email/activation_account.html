@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activation Account</title>
+    <style>
+        /* Reset styles */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f4f4f4;
+        }
+        
+        /* Container */
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+        }
+        
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            background-color: #2563eb;
+        }
+        
+        .header img {
+            max-width: 150px;
+            height: auto;
+        }
+        
+        /* Content */
+        .content {
+            padding: 30px 20px;
+            color: #333333;
+        }
+        
+        .content h1 {
+            color: #1e3a8a;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        
+        .content p {
+            margin-bottom: 15px;
+        }
+        
+        /* Button */
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #2563eb;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #f8f8f8;
+            color: #666666;
+            font-size: 12px;
+        }
+        
+        /* Responsive */
+        @media screen and (max-width: 600px) {
+            .container {
+                width: 100%;
+            }
+            
+            .content {
+                padding: 20px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="{{COMPANY_LOGO}}" alt="Logo Perusahaan">
+        </div>
+        
+        <div class="content">
+            <h1>Selamat Datang!</h1>
+            
+            <p>Halo {{NAME}},</p>
+            
+            <p>Terima kasih telah bergabung dengan kami. Kami sangat senang Anda menjadi bagian dari komunitas kami.</p>
+            
+            <p>Untuk mengaktifkan akun Anda, silakan klik tombol di bawah ini:</p>
+            
+            <center>
+                <a href="{{VERIFICATION_LINK}}" class="button">Verifikasi Akun</a>
+            </center>
+            
+            <p>Jika Anda memiliki pertanyaan, jangan ragu untuk menghubungi tim dukungan kami.</p>
+            
+            <p>Salam hangat,<br>Tim Kami</p>
+        </div>
+        
+        <div class="footer">
+            <p>&copy; 2024 {{COMPANY_NAME}}. Seluruh hak cipta dilindungi.</p>
+            <p>Alamat: {{COMPANY_ADDRESS}}</p>
+        </div>
+    </div>
+</body>
+</html>

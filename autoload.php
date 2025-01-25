@@ -1,6 +1,6 @@
 <?php defined('APP_FRAMEWORK') OR exit('No direct script access allowed');
  
-require_once 'app_config_dev.php';
+require_once 'app_config.php';
 
 if(APP_MODE == "development"){
     error_reporting(E_ALL); 

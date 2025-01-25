@@ -1,0 +1,25 @@
+{
+    "name": "ahmadsopyan9/isfiframework",
+    "description": "ISFIFramework is a lightweight and modern PHP MVC",
+    "type": "project",
+    "require": {
+        "php": "^7.4 || ^8.0",
+        "phpmailer/phpmailer": "^6.8"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "apps/",
+            "System\\": "sysapp/"
+        },
+        "files": [
+            "apps/helpers/globalHelper.php"
+        ]
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+} 

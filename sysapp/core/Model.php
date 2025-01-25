@@ -5,7 +5,7 @@ class Model {
     protected $builder;
 
     public function __construct() {
-        $this->builder = new Builder();
+        $this->builder = new DbBuilder();
     }
 
     public function all() {
