@@ -42,6 +42,10 @@ class Controller {
         return $this->view->render($view, $data);
     }
 
+    public function error404()
+    {
+        return $this->view->render("404");
+    }
 
     public static function &get_instance()
     {

@@ -32,7 +32,7 @@ class DbBuilder {
     }
 
     public function where($field, $operator = null, $value = null) {
-        // Mendukung where array
+        // Support where array
         if(is_array($field)) {
             foreach($field as $key => $val) {
                 $this->paramCount++;
@@ -43,7 +43,7 @@ class DbBuilder {
             return $this;
         }
 
-        // Mendukung where dengan operator
+        // Support where with operator
         if($value === null) {
             $value = $operator;
             $operator = '=';
@@ -279,7 +279,7 @@ class DbBuilder {
     }
 
     public function insert($data) {
-        // Jika single insert
+        // if single
         if(!isset($data[0])) {
             $columns = implode(', ', array_keys($data));
             $values = ':' . implode(', :', array_keys($data));
@@ -296,7 +296,7 @@ class DbBuilder {
             return $this;
         }
         
-        // Jika multi insert
+        // if multi
         $columns = implode(', ', array_keys($data[0]));
         $valuesList = [];
         $params = [];

@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Inisialisasi aplikasi
-    console.log('Aplikasi berhasil dimuat');
+
+    console.log('Isfiframework Started...');
 
     if(typeof __alert != 'undefined')
     {
@@ -162,56 +162,63 @@ function urls(path)
 
 function getToken()
 {
-  let tkn = '';
-  if(typeof $('#mp') != 'undefined'){
-    tkn = $('#mp').attr('data-scr');
-  }
-  return tkn;
+    const csrfToken = document.querySelector('meta[name="_token"]');
+    return csrfToken ? csrfToken.getAttribute('content') : '';
 }
 
-function refToken(dt=false)
-{
-  if(!dt){
-    _request(urls('api/ref-token'),'POST',_stringify({}),true,function(r){
-      if(r.success && r.data != 0){
-        $('#mp').attr('data-scr',r.data);
-        $(".app_token").val(r.data);
-      }
+
+/**
+ * _request function
+ * @param {string} _url - endpoint URL
+ * @param {string} _type - request method (e.g., 'POST')
+ * @param {object|string|FormData} _data - data to send
+ * @param {boolean} _withCsrf - include CSRF token
+ * @param {function} _callback - success/error callback
+ * @param {function|null} _onProgress - optional progress callback
+ */
+// example
+// _request('/api/user/upload', 'POST', formData, true, function(res) {
+//     console.log('Upload success:', res);
+// }, function(progress) {
+//     // Update progress bar
+//     document.getElementById('uploadProgress').value = progress;
+// });
+function _request(_url, _type = 'GET', _data = {}, _withCsrf = true, _callback, _onProgress = null) {
+    const isFormData = _data instanceof FormData;
+    const isJson = typeof _data === 'object' && !isFormData;
+    const sendData = isJson ? JSON.stringify(_data) : _data;
+
+    $.ajax({
+        url: _url,
+        type: _type,
+        data: sendData,
+        processData: !isFormData && !isJson ? true : false,
+        contentType: isJson ? 'application/json' : false,
+        xhr: function () {
+            const xhr = new window.XMLHttpRequest();
+            if (_onProgress && xhr.upload) {
+                xhr.upload.addEventListener("progress", function (evt) {
+                    if (evt.lengthComputable) {
+                        const percentComplete = Math.round((evt.loaded / evt.total) * 100);
+                        _onProgress(percentComplete);
+                    }
+                }, false);
+            }
+            return xhr;
+        },
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            if (_withCsrf && _type.toUpperCase() !== 'GET') {
+                xhr.setRequestHeader('X-CSRF-TOKEN', getToken());
+            }
+        },
+        success: function (res) {
+            if (typeof _callback === 'function') _callback(res);
+        },
+        error: function (err) {
+            if (typeof _callback === 'function') _callback(err);
+        }
     });
-  }
-  else{
-    $(".app_token").val(dt);
-    $('#mp').attr('data-scr',dt);
-  }
-}
-
-function _request(_url,_type,_data,_headers,_callback)
-{
-  let tkn = '';
-  if(_headers != null){
-    tkn = `Bearer ${getToken()}`;
-  }
-  _type = _type ? _type : 'GET';
-  _data = _data ? _data : '';
-
-  $.ajax({
-    url: _url,
-    type: _type,
-    data: _data,
-    beforeSend: function(xhr) {
-      xhr.setRequestHeader("Content-Type", 'application/json');
-      xhr.setRequestHeader("Authorization", tkn);
-    },
-    success: (res) => {
-      // console.clear();
-      refToken(res._token);
-      return _callback(res);
-    },
-    error(err){
-      refToken();
-      return _callback(err);
-    }
-  });
 }
 
 function del(path,v,d,msg)
@@ -384,53 +391,6 @@ function generateRandomNDigits(n) {
     return Math.floor(Math.random() * (9 * (Math.pow(10, n)))) + (Math.pow(10, n));
 }
 
-
-function registerSummernote(element, placeholder, max, callbackMax) {
-    $(element).summernote({
-        toolbar: [
-            ['style', ['style']],
-            ['font', ['bold', 'underline', 'clear']],
-            ['color', ['color']],
-            ['para', ['ul', 'ol', 'paragraph']],
-            ['table', ['table']],
-            ['insert', ['link', 'picture', 'video']],
-            ['view', ['codeview']]
-        ],
-        placeholder,
-        height: 300,
-        callbacks: {
-            onImageUpload: function(image) {
-                sendFile(image[0], element);
-            },
-            onKeydown: function(e) {
-                // var t = e.currentTarget.innerText;
-                // if (t.length >= max) {
-                //     //delete key
-                //     if (e.keyCode != 8)
-                //         e.preventDefault();
-                // }
-            },
-            onKeyup: function(e) {
-                var t = e.currentTarget.innerText;
-                // if (typeof callbackMax == 'function') {
-                //     callbackMax(max - t.length);
-                // }
-            },
-            onPaste: function(e) {
-                var t = e.currentTarget.innerText;
-                var bufferText = ((e.originalEvent || e).clipboardData || window.clipboardData).getData('Text');
-                e.preventDefault();
-                // var all = t + bufferText;
-                var all = bufferText;
-                document.execCommand('insertText', false, all.trim().substring(0, 10000));
-                // if (typeof callbackMax == 'function') {
-                //     callbackMax(max - t.length);
-                // }
-            }
-        }
-    });
-}
-
 function _alert(type, msg, direct = "reload") {
     type = type ? type : "info";
     type = (type == "failed") ? "warning" : type;
@@ -443,7 +403,6 @@ function _alert(type, msg, direct = "reload") {
         }
     });
 }
-
 
 
 function _alertStay(type, msg) {
@@ -499,37 +458,6 @@ function URLToArray(url) {
     return request;
 }
 
-function getDate(by)
-{
-  by = by ? by : "";
-  let today = new Date();
-  let dd = String(today.getDate()).padStart(2, '0');
-  const m = (parseInt(today.getMonth()) + 1);
-  let mm = String(m).padStart(2, '0'); //January is 0!
-  let yyyy = today.getFullYear();
-  if(by==""){
-    today = dd + '/' + mm + '/' + yyyy;
-  }
-  else if(by=='full_en'){
-    today = yyyy + '/' + mm + '/' + dd;
-  }
-  else if(by=='full_en_plus'){
-    today = yyyy + '/' + mm + '/' + dd;
-  }
-  else if(by == "d"){
-    today = dd;
-  }else if(by == "m"){
-    today = mm;
-  }else if(by == "y"){
-    today = yyyy;
-  }
-  else if(by == "Y"){
-    today = String(yyyy).substring(2,4);
-  }
-  return today;
-}
-
-
 function dateToEng(str)
 {
   let res = getDate();
@@ -548,49 +476,6 @@ function dateNow()
     return dateNow.toISOString().split('T')[0]
 }
 
-function convertDateID(string,char=" ",bulanStr=true) {
-  char = char ? char : " ";
-  bulanID = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September' , 'Oktober', 'November', 'Desember'];
-  tanggal = string.split("-")[0];
-  bulan = string.split("-")[1];
-  tahun = string.split("-")[2];
-  if(bulanStr){
-    return tanggal + char + bulanID[parseInt(bulan)] + char + tahun;
-  }else{
-    return tanggal + char + bulan + char + tahun;
-  }
-}
-
-function convertDateToID(string,char=" ",bulanStr=true) {
-  char = char ? char : " ";
-  bulanID = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September' , 'Oktober', 'November', 'Desember'];
-  tanggal = string.split("-")[2];
-  bulan = string.split("-")[1];
-  tahun = string.split("-")[0];
-  if(bulanStr){
-    return tanggal + char + bulanID[parseInt(bulan)] + char + tahun;
-  }else{
-    return tanggal + char + bulan + char + tahun;
-  }
-}
-
-function formatRupiah(angka, prefix){
-    var number_string = angka.toString().replace(/[^,\d]/g, ''),
-    split           = number_string.split(','),
-    sisa            = split[0].length % 3,
-    rupiah          = split[0].substr(0, sisa),
-    ribuan          = split[0].substr(sisa).match(/\d{3}/gi);
-
-    // tambahkan titik jika yang di input sudah menjadi angka ribuan
-    if(ribuan){
-        separator = sisa ? '.' : '';
-        rupiah += separator + ribuan.join('.');
-    }
-
-    rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
-    return prefix == undefined ? rupiah : (rupiah ? 'Rp. ' + rupiah : '');
-}
-
 
 function cleanDotsComass(num)
 {
@@ -600,34 +485,6 @@ function cleanDotsComass(num)
     return parseInt(result);
   }
 }
-
-function times() { 
-  let dates = new Date(); 
-  let hr = dates.getHours();
-  let mn = dates.getMinutes();
-  let sc = dates.getSeconds();
-  if(hr <= 9){ hr = '0'+hr; }
-  if(mn <= 9){ mn = '0'+mn; }
-  if(sc <= 9){ sc = '0'+sc; }
-  setTimeout("times()",1000); 
-  document.getElementById("t_hours").innerHTML = hr; 
-  document.getElementById("t_minute").innerHTML = mn;
-  document.getElementById("t_second").innerHTML = sc;
-} 
-
-
-function timePicker(elm_id)
-{
-  $('#'+elm_id).timepicker({
-    minuteStep: 1,
-    template: 'modal',
-    appendWidgetTo: 'body',
-    showSeconds: true,
-    showMeridian: false,
-    defaultTime: false
-  });
-}
-
 
 function numFormat(number)
 {
@@ -651,113 +508,16 @@ function _requestFormData(target,data,callback)
         url: target,
         data: data,
         success: function (res) {
-          if(res.success && res.data != 0){
-            refToken(res._token);
-            callback(res.data);
-          }
+            if(res.success && res.data != 0){
+                callback(res.data);
+            }
         },
         error: function (e) {
-          refToken();
-          callback(e);
+            callback(e);
         }
-
     });
 }
 
-
-function loadAllImageFiles() {
-    if($(".box-list-images").length > 0)
-    {
-        _request(
-            base_url + "api/load-all-images",
-            "POST",
-            _stringify({}),
-            true,
-            function (res) {
-                if (res.success) {
-                    $(".box-list-images").html("");
-                    let _html = "";
-                    const data = res.data;
-                    $.each(data, function (i, v) {
-                        _html += `
-              <div class="img-modal-selected col-sm-2 pl-1 pr-1 mb-2">
-                <img src="${v.url}" data-fname="${v.filename}" style="width:100%;height:100px;border:2px solid #ccc;">
-              </div>
-            `;
-                    });
-                    $(".box-list-images").html(_html);
-                    console.clear();
-                    $(document).on("click", ".img-modal-selected img", function (e) {
-                        $(".btn-del-image, .btn-ok-selected").hide();
-                        $(".img-modal-selected img.border-blue").removeClass("border-blue");
-                        $(this).addClass("border-blue");
-
-                        if ($("#image_view").length > 0) {
-                            $("#image_view").attr("src", e.currentTarget.src);
-                        }
-                        if ($("#thumbnail").length > 0) {
-                            $("#thumbnail").val(e.currentTarget.src);
-                        }
-                        if ($(".modal-images").length > 0) {
-                            $(".modal-images").modal("hide");
-                        }
-                        $("#cover_top").val(e.currentTarget.dataset.fname);
-                        $(".btn-del-image").attr("data-del", e.currentTarget.src);
-                        $(".btn-ok-selected").attr("data-selected", e.currentTarget.src);
-                        $(".btn-ok-selected").attr(
-                            "data-fname",
-                            e.currentTarget.dataset.fname
-                        );
-                        $(".btn-del-image, .btn-ok-selected").show();
-                    });
-                }
-            }
-        );
-    }
-}
-
-
-function sendFile(image,elements) {
-  let data = new FormData();
-  data.append("file", image);
-
-    $.ajax({
-      data: data,
-      type: "POST",
-      url: base_url+"api/updimage",
-      cache: false,
-      contentType: false,
-      processData: false,
-      success: function (res) {
-        if(res.success && res.data != 0){
-          const image = res.data.url;
-          load_all_images();
-          refToken();
-          $(elements).summernote("insertImage", image);
-        }
-      },
-      error: function (data) {
-        refToken();
-        console.log(data);
-      }
-    });
-}
-
-function formatRupiah(angka, prefix){
-    var number_string = angka.toString().replace(/[^,\d]/g, ''),
-    split           = number_string.split(','),
-    sisa            = split[0].length % 3,
-    rupiah          = split[0].substr(0, sisa),
-    ribuan          = split[0].substr(sisa).match(/\d{3}/gi);
-
-    if(ribuan){
-        separator = sisa ? '.' : '';
-        rupiah += separator + ribuan.join('.');
-    }
-
-    rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
-    return prefix == undefined ? rupiah : (rupiah ? 'Rp. ' + rupiah : '');
-}
 
 function btnClikDirection(path, arr_id, char) {
     char = char ? char : "/";
@@ -808,7 +568,6 @@ function atb(s) {
     return atob(s);
 }
 
-
 function _atb(s) {
     return atob(atob(s));
 }
@@ -831,201 +590,4 @@ function _jParse(json)
 function _stringify(obj)
 {
   return JSON.stringify(obj);
-}
-
-function numFormat2(id="IDR",num,symbol=true)
-{
-    // FORMAT NUMBER
-    let fmt = id.toLowerCase();
-    if(id == "IDR"){
-        fmt = id.toLowerCase().substr(0,2)+"-"+id.substr(0,2);
-    }
-    const cur = id
-    let res = Intl.NumberFormat(fmt, {
-        style: "currency",
-        currency: cur,
-        maximumFractionDigits: 0
-    });
-    if(symbol == false){
-        res = Intl.NumberFormat(fmt);
-    }
-    return res.format(num);
-    // END FORMAT NUMBER
-}
-
-function counted(number, sufix){
-  if(number=="" || number==null || number=="null" || number==undefined){
-    return "";
-  } else {
-    // number = number.replace(/[^,\d]/g, '');
-    number = onlyNumber(number.toString());
-      let text="";
-      let num   = new Array('0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0');
-      let word    = new Array('','Satu','Dua','Tiga','Empat','Lima','Enam','Tujuh','Delapan','Sembilan');
-      let level = new Array('','Ribu','Juta','Milyar','Triliun');
-      let number_length = number.length;
- 
-      /* pengujian panjang number */
-      if(number_length > 15){
-          text = "Diluar Batas";
-      }else{
-          /* mengambil angka-angka yang ada dalam number, dimasukkan ke dalam array */
-          for(let i = 1; i <= number_length; i++) {
-              num[i] = number.substr(-(i),1);
-          }
- 
-          let i = 1;
-          let j = 0;
- 
-          /* mulai proses iterasi terhadap array angka */
-          while(i <= number_length){
-              sub_text = "";
-              word1 = "";
-              word2 = "";
-              word3 = "";
- 
-              /* untuk Ratusan */
-              if(num[i+2] != "0"){
-                  if(num[i+2] == "1"){
-                      word1 = "Seratus";
-                  }else{
-                      word1 = word[num[i+2]] + " Ratus";
-                  }
-              }
- 
-              /* untuk Puluhan atau Belasan */
-              if(num[i+1] != "0"){
-                  if(num[i+1] == "1"){
-                      if(num[i] == "0"){
-                          word2 = "Sepuluh";
-                      }else if(num[i] == "1"){
-                          word2 = "Sebelas";
-                      }else{
-                          word2 = word[num[i]] + " Belas";
-                      }
-                  }else{
-                      word2 = word[num[i+1]] + " Puluh";
-                  }
-              }
- 
-              /* untuk Satuan */
-              if (num[i] != "0"){
-                  if (num[i+1] != "1"){
-                      word3 = word[num[i]];
-                  }
-              }
- 
-              /* pengujian aggka apakah tidak nol semua, lalu ditambahkan level */
-              if ((num[i] != "0") || (num[i+1] != "0") || (num[i+2] != "0")){
-                  sub_text = word1+" "+word2+" "+word3+" "+level[j]+" ";
-              }
- 
-              /* gabungkan variabe sub text (untuk Satu blok 3 num) ke variabel text */
-              text = sub_text + text;
-              i = i + 3;
-              j = j + 1;
-          }
- 
-          /* mengganti Satu Ribu jadi Seribu jika diperlukan */
-          if ((num[5] == "0") && (num[6] == "0")){
-              text = text.replace("Satu Ribu","Seribu");
-          }
-      }
-      text = text.trim();
-      return sufix == undefined ? text : text + " "+sufix;
-  }
-}
-
-function convertTimeToBahasa(time) {
-    // Pisahkan jam dan menit dari input waktu (format HH:mm)
-    const [jam, menit] = time.split(":").map(Number);
-
-    // Susun output berdasarkan jam dan menit
-    let hasil = "";
-    if (jam > 0) {
-        hasil += `${jam} jam`;
-    }
-    if (menit > 0) {
-        hasil += (jam > 0 ? " " : "") + `${menit} menit`;
-    }
-    return hasil || "0 menit"; // Default jika jam dan menit adalah 0
-}
-
-function convertTime(decc)
-{
-
-  if(!decc || decc < 1){
-    return 0;
-  }
-  var decimalTimeString = decc;
-  var decimalTime = parseFloat(decimalTimeString);
-  decimalTime = decimalTime * 60 * 60;
-  var hours = Math.floor((decimalTime / (60 * 60)));
-  decimalTime = decimalTime - (hours * 60 * 60);
-  var minutes = Math.floor((decimalTime / 60));
-  decimalTime = decimalTime - (minutes * 60);
-  var seconds = Math.round(decimalTime);
-  if(hours < 10)
-  {
-    hours = hours;
-  }
-  if(minutes < 10)
-  {
-    minutes = minutes;
-  }
-  if(seconds < 10)
-  {
-    seconds = seconds;
-  }
-  // console.log(hours+"."+minutes);
-  return hours + " Jam " + minutes + " Menit";
-}
-
-function convertTime2(decc,by)
-{
-  if(!decc || decc < 1){
-    return 0;
-  }
-  by = by ? by : "";
-  var decimalTimeString = decc;
-  var decimalTime = parseFloat(decimalTimeString);
-  decimalTime = decimalTime * 60 * 60;
-  var hours = Math.floor((decimalTime / (60 * 60)));
-  decimalTime = decimalTime - (hours * 60 * 60);
-  var minutes = Math.floor((decimalTime / 60));
-  decimalTime = decimalTime - (minutes * 60);
-  var seconds = Math.round(decimalTime);
-  if(hours < 10)
-  {
-    hours = hours;
-  }
-  if(minutes < 10)
-  {
-    minutes = minutes;
-  }
-  if(seconds < 10)
-  {
-    seconds = seconds;
-  }
-
-  let result = hours + " Jam " + minutes + " Menit";
-  if(by == 'h'){
-    result = hours;
-  }
-  else if(by == 'm'){
-    result = minutes;
-  }
-  else if(by == 'hm'){
-    result = hours,minutes;
-  }
-  // console.log(hours+"."+minutes);
-  return result;
-}
-
-function magicTimeStr(t, ident)
-{
-  ident = ident ? ident : ":";
-  let tms = t.split(ident);
-  const result = tms[0]+" Jam "+tms[1]+" Menit";
-  return result;
 }

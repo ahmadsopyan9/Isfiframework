@@ -1,4 +1,4 @@
-<?php
+<?php defined('_ROOT_') OR exit('No direct script access allowed');
 
 if (!function_exists('redirect')) {
     function redirect($path="") {
@@ -119,6 +119,27 @@ if(!function_exists("getUrl"))
     }
 }
 
+if(!function_exists("arrayToObject"))
+{
+    function arrayToObject($array) {
+        if (!is_array($array)) {
+            return $array;
+        }
+
+        $object = new stdClass();
+
+        foreach ($array as $key => $value) {
+            // Pastikan key adalah string agar bisa dijadikan property
+            if (is_numeric($key)) {
+                $key = "key_$key";
+            }
+
+            $object->$key = is_array($value) ? arrayToObject($value) : $value;
+        }
+
+        return $object;
+    }
+}
 
 if(!function_exists("shuffle_assoc"))
 {
@@ -264,3 +285,138 @@ if(!function_exists("sendEmailWithTemplate"))
     }
 }
 
+if(!function_exists("underscore"))
+{
+    function underscore($txt)
+    {
+        $str = preg_replace('/[^A-Za-z0-9\-]/', '_', strtolower($txt));
+        $result = preg_replace('/-+/', '_', $str);
+        return $result;
+    }
+}
+
+if(!function_exists("rpc"))
+{
+    function rpc($data, $d, $c)
+    {
+        if(!empty($data) && !empty($d) && !empty($c))
+        {
+            return str_replace($d, $c, _trim($data));
+        }
+        return $data;
+    }
+}
+
+if(!function_exists("fixEncoding"))
+{
+    function fixEncoding($text) {
+        return mb_convert_encoding($text, 'UTF-8', 'ISO-8859-1');
+    }
+}
+
+if(!function_exists("isUnicode"))
+{
+    function isUnicode($str)
+    {
+        return preg_match('/\\\\u([0-9a-fA-F]{4})/', $str);
+    }
+}
+
+if(!function_exists("contains_unicode_escape"))
+{
+    function contains_unicode_escape($str) {
+        return preg_match('/\\\\u([0-9a-fA-F]{4})/', $str);
+    }
+}
+
+if(!function_exists("decode_unicode_escapes"))
+{
+    function decode_unicode_escapes($str) {
+        return preg_replace_callback('/\\\\u([0-9a-fA-F]{4})/', function ($match) {
+            return mb_convert_encoding(pack('H*', $match[1]), 'UTF-8', 'UCS-2BE');
+        }, $str);
+    }
+}
+
+if(!function_exists("seofy"))
+{
+    function seofy($sString = '', $strip = '')
+    {
+        if (is_null($sString)) $sString = '';
+        $sString = (string)$sString;
+
+        if (contains_unicode_escape($sString)) {
+            $sString = decode_unicode_escapes($sString);
+        }
+
+        $jsonDecoded = json_decode('"' . $sString . '"', true);
+        if ($jsonDecoded !== null && is_string($jsonDecoded)) {
+            $sString = $jsonDecoded;
+        }
+
+        if (!mb_detect_encoding($sString, 'UTF-8', true)) {
+            $sString = mb_convert_encoding($sString, 'UTF-8');
+        }
+
+        if ($strip == '') {
+            $sString = preg_replace('/[^\pL\d_]+/u', '-', $sString);
+            $sString = trim($sString, '-');
+        } else {
+            $sString = preg_replace('/[^\pL\d_]+/u', '_', $sString);
+            $sString = trim($sString, '_');
+        }
+
+        $sString = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $sString);
+
+        $sString = strtolower($sString);
+        $sString = preg_replace('/[^-a-z0-9_]+/', '', $sString);
+
+        return $sString;
+    }
+}
+
+// cleanText
+if(!function_exists("cleanText"))
+{
+    function cleanText($text = '',$spc=' ')
+    {
+        $text = strip_tags($text);
+        $text = preg_replace('/[^\\pL\d_]+/u', (!empty($spc) ? $spc : " "), $text);
+        $text = trim($text, "-");
+        $text = str_replace("_", " ", $text);
+        $text = iconv('utf-8', "us-ascii//TRANSLIT", $text);
+        $text = strtolower($text);
+        $text = preg_replace('/[^-a-z0-9_]+/', (!empty($spc) ? $spc : " "), $text);
+        return $text;
+    }//end
+}
+
+// slug to text
+if(!function_exists("slugToClean"))
+{
+    function slugToClean($text = '',$spc=' ')
+    {
+        return ucwords(cleanText($text, $spc));
+    }
+}
+
+if(!function_exists("uwords"))
+{
+    function uwords($str=""){
+        return slugToClean(ucwords(strtolower($str)), " ");
+    }
+}
+
+if(!function_exists("autolink"))
+{
+    function autolink($text) {
+        return preg_replace_callback(
+            '/(https?:\/\/[^\s)]+)/i',
+            function ($matches) {
+                $url = $matches[1];
+                return "<a href=\"$url\" target=\"_blank\" rel=\"noopener noreferrer\">$url</a>";
+            },
+            $text
+        );
+    }
+}

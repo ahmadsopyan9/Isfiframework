@@ -1,19 +1,18 @@
 <?php defined('_ROOT_') OR exit('No direct script access allowed');
 
 class HomeController extends Controller {
+    private $data = [];
+
     public function __construct() {
         parent::__construct();
         $this->loadModel("User");
     }
 
     public function index() {
-        $data =  [
-            'title' => 'Welcome to Homepage',
+        $data = [
+            'title' => 'Home',
             'content' => 'This is the homepage content'
         ];
-
-        // $d = $this->UserModel->getActiveUsers();
-        // predump($d);
         
         $this->view->render('frontend/index', $data);
     }
@@ -37,4 +36,5 @@ class HomeController extends Controller {
         
         $this->view->render('frontend/contact', $data);
     }
+
 } 

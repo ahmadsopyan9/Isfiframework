@@ -7,28 +7,31 @@ if(APP_MODE == "development"){
     ini_set('display_errors', 1); 
 }
 
-
 spl_autoload_register(function($className) {
     $paths = [
-        'apps/controllers/',
-        'apps/models/',
-        'apps/libraries/',
-        'sysapp/core/',
+        APP_PATH . 'controllers/',
+        APP_PATH . 'models/',
+        APP_PATH . 'libraries/',
+        _ROOT_ . '/sysapp/core/',
     ];
 
     foreach($paths as $path) {
         $file = $path . $className . '.php';
         if(file_exists($file)) {
-            require_once $file;
+            include_once $file;
             return;
         }
     }
 }); 
 
-foreach (glob('apps/helpers/*.php') as $helperFile) {
-    require_once $helperFile;
+foreach (glob(HELPER_PATH . '*.php') as $helperFile) {
+    if (is_file($helperFile)) {
+        require_once realpath($helperFile);
+        debug_backtrace();
+    }
 }
 
 if(file_exists(__DIR__."/vendor/autoload.php")){
     require_once(__DIR__."/vendor/autoload.php");
 }
+
